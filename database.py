@@ -437,11 +437,13 @@ class Database:
             return None
 
     def _convert_datetime(self, row: Dict[str, Any]) -> Dict[str, Any]:
-        """将 datetime 对象转换为 ISO 格式字符串"""
+        """将 datetime 对象和 UUID 对象转换为字符串"""
         result = {}
         for key, value in row.items():
             if isinstance(value, datetime):
                 result[key] = value.isoformat()
+            elif isinstance(value, uuid.UUID):
+                result[key] = str(value)
             else:
                 result[key] = value
         return result
