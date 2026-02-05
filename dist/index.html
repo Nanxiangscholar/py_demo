@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设施管理系统</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1>设施管理系统</h1>
+        </header>
+
+        <!-- 导航标签 -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="facilities">设施管理</button>
+            <button class="tab-btn" data-tab="metrics">指标管理</button>
+        </nav>
+
+        <!-- 设施管理面板 -->
+        <div id="facilities-panel" class="panel active">
+            <div class="panel-header">
+                <h2>设施列表</h2>
+                <div class="filters">
+                    <select id="facility-type-filter">
+                        <option value="">全部类型</option>
+                        <option value="datacenter">数据中心</option>
+                        <option value="room">房间</option>
+                        <option value="sensor">传感器</option>
+                    </select>
+                    <button id="refresh-facilities" class="btn btn-secondary">刷新</button>
+                    <button id="add-facility" class="btn btn-primary">新增设施</button>
+                </div>
+            </div>
+
+            <!-- 设施树形视图 -->
+            <div class="tree-view" id="facility-tree">
+                <div class="loading">加载中...</div>
+            </div>
+
+            <!-- 设施列表视图 -->
+            <div class="table-view" id="facility-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>父设施</th>
+                            <th>描述</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="facility-tbody">
+                        <tr><td colspan="6" class="text-center">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 指标管理面板 -->
+        <div id="metrics-panel" class="panel">
+            <div class="panel-header">
+                <h2>指标列表</h2>
+                <div class="filters">
+                    <select id="metric-facility-filter">
+                        <option value="">选择设施...</option>
+                    </select>
+                    <button id="refresh-metrics" class="btn btn-secondary">刷新</button>
+                    <button id="add-metric" class="btn btn-primary">新增指标</button>
+                </div>
+            </div>
+
+            <div class="table-view">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>名称</th>
+                            <th>单位</th>
+                            <th>数据类型</th>
+                            <th>关联设施</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="metric-tbody">
+                        <tr><td colspan="6" class="text-center">请选择设施查看指标</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 指标值查看面板 -->
+        <div id="metric-values-panel" class="panel">
+            <div class="panel-header">
+                <h2 id="metric-values-title">指标历史数据</h2>
+                <button class="btn btn-secondary" onclick="showPanel('metrics')">返回</button>
+            </div>
+
+            <div class="metric-values-content">
+                <div class="metric-info" id="metric-info"></div>
+                <div class="chart-controls">
+                    <button id="add-metric-value" class="btn btn-primary">记录新值</button>
+                </div>
+                <div class="table-view">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>值</th>
+                            </tr>
+                        </thead>
+                        <tbody id="metric-values-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设施表单弹窗 -->
+    <div id="facility-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="facility-modal-title">新增设施</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="facility-form">
+                <input type="hidden" id="facility-id">
+                <div class="form-group">
+                    <label>设施名称 *</label>
+                    <input type="text" id="facility-name" required>
+                </div>
+                <div class="form-group">
+                    <label>设施类型 *</label>
+                    <select id="facility-type" required>
+                        <option value="">请选择</option>
+                        <option value="datacenter">数据中心</option>
+                        <option value="room">房间</option>
+                        <option value="sensor">传感器</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>父设施</label>
+                    <select id="facility-parent">
+                        <option value="">无（根设施）</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="facility-description" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 指标表单弹窗 -->
+    <div id="metric-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="metric-modal-title">新增指标</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="metric-form">
+                <input type="hidden" id="metric-id">
+                <div class="form-group">
+                    <label>指标名称 *</label>
+                    <input type="text" id="metric-name" required>
+                </div>
+                <div class="form-group">
+                    <label>单位</label>
+                    <input type="text" id="metric-unit" placeholder="如: °C, %, V, A">
+                </div>
+                <div class="form-group">
+                    <label>数据类型 *</label>
+                    <select id="metric-datatype" required>
+                        <option value="float">浮点数</option>
+                        <option value="int">整数</option>
+                        <option value="string">字符串</option>
+                        <option value="bool">布尔值</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>关联设施 *</label>
+                    <select id="metric-facility" required></select>
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="metric-description" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 指标值表单弹窗 -->
+    <div id="metric-value-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>记录指标值</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="metric-value-form">
+                <div class="form-group">
+                    <label>值 *</label>
+                    <input type="text" id="metric-value-input" required>
+                </div>
+                <div class="form-group">
+                    <label>时间</label>
+                    <input type="datetime-local" id="metric-value-timestamp">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 确认删除弹窗 -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3>确认删除</h3>
+                <span class="close">&times;</span>
+            </div>
+            <p id="confirm-message">确定要删除吗？此操作不可恢复。</p>
+            <div class="form-actions">
+                <button id="confirm-delete" class="btn btn-danger">删除</button>
+                <button class="btn btn-secondary cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div id="toast" class="toast"></div>
+
+    <script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+services:
+  # MySQL 数据库
+  mysql:
+    image: registry.cn-hangzhou.aliyuncs.com/library/mysql:8.0
+    container_name: facilities_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-zsl123456}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-facilities_db}
+      MYSQL_USER: ${MYSQL_USER:-facilities_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-facilities_pass}
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-zsl123456}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - facilities_network
+
+  # FastAPI 应用
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: facilities_app
+    restart: unless-stopped
+    ports:
+      - "8008:8008"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: ${MYSQL_USER:-facilities_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-facilities_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-facilities_db}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8008/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - facilities_network
+
+  # Nginx 反向代理
+  nginx:
+    image: registry.cn-hangzhou.aliyuncs.com/library/nginx:alpine
+    container_name: facilities_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./dist:/usr/share/nginx/html:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - facilities_network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  facilities_network:
+    driver: bridge
