@@ -1,0 +1,408 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.gomoku-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+  min-width: 320px;
+}
+
+/* 大厅界面 */
+.gomoku-lobby {
+  text-align: center;
+  padding: 20px;
+}
+
+.gomoku-lobby h1 {
+  font-size: 32px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #888;
+  margin-bottom: 24px;
+}
+
+.lobby-form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.lobby-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.lobby-input:focus {
+  border-color: #667eea;
+}
+
+.lobby-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.lobby-join {
+  display: flex;
+  gap: 8px;
+}
+
+.lobby-join .lobby-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.lobby-divider {
+  margin: 24px 0;
+  color: #888;
+  font-size: 14px;
+}
+
+/* 等待界面 */
+.gomoku-waiting {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.waiting-info {
+  margin: 32px 0;
+}
+
+.waiting-info p {
+  font-size: 18px;
+  color: #666;
+  margin: 12px 0;
+}
+
+.room-code {
+  font-size: 36px;
+  color: #667eea;
+  letter-spacing: 4px;
+  font-family: monospace;
+}
+
+.waiting-text {
+  color: #f59e0b;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 消息提示 */
+.gomoku-message {
+  background: #f3f4f6;
+  color: #333;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* 游戏界面 */
+.gomoku-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header-top h1 {
+  font-size: 24px;
+  color: #333;
+  flex: 1;
+}
+
+.leave-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.leave-btn:hover {
+  background: #dc2626;
+}
+
+/* 玩家信息 */
+.player-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.player-card {
+  background: #f3f4f6;
+  padding: 12px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.player-card.you {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: bold;
+}
+
+.player-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #333;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.player-card.you .player-number {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.vs {
+  font-size: 18px;
+  font-weight: bold;
+  color: #888;
+}
+
+.gomoku-winner {
+  font-size: 20px;
+  color: #f59e0b;
+  font-weight: bold;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.gomoku-current {
+  font-size: 16px;
+  color: #666;
+}
+
+.gomoku-current span {
+  font-weight: bold;
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+
+.gomoku-current .black {
+  background: #000;
+  color: #fff;
+}
+
+.gomoku-current .white {
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+}
+
+.gomoku-board {
+  display: grid;
+  grid-template-columns: repeat(15, 32px);
+  grid-template-rows: repeat(15, 32px);
+  gap: 0;
+  background: #d4a574;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 0 auto;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* 棋盘网格线 */
+.gomoku-board::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  background-image:
+    linear-gradient(to right, #8b6914 1px, transparent 1px),
+    linear-gradient(to bottom, #8b6914 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.gomoku-cell {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.gomoku-cell:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+}
+
+.gomoku-cell:disabled {
+  cursor: not-allowed;
+}
+
+.stone {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s;
+}
+
+.stone.black {
+  background: radial-gradient(circle at 30% 30%, #555, #000);
+}
+
+.stone.white {
+  background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+  border: 1px solid #999;
+}
+
+.last-move .stone::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #f00;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.winning .stone {
+  animation: winning-stone 0.5s infinite alternate;
+}
+
+@keyframes winning-stone {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+
+.gomoku-controls {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.gomoku-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gomoku-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.gomoku-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gomoku-footer {
+  text-align: center;
+  margin-top: 16px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+  .gomoku-board {
+    grid-template-columns: repeat(15, 22px);
+    grid-template-rows: repeat(15, 22px);
+    padding: 12px;
+  }
+
+  .gomoku-board::before {
+    background-size: 22px 22px;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .gomoku-cell {
+    width: 22px;
+    height: 22px;
+  }
+
+  .stone {
+    width: 18px;
+    height: 18px;
+  }
+
+  .gomoku-container {
+    padding: 20px;
+  }
+
+  .player-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .gomoku-board {
+    max-width: 100vw;
+  }
+}
