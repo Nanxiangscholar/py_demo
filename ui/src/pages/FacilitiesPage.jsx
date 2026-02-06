@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Button, Table, Select, Space, Popconfirm, Tag, Card, Segmented, Alert } from "antd";
+import { Button, Table, Select, Space, Popconfirm, Tag, Segmented, Alert } from "antd";
 import { facilityService } from "../services/facilityService";
 import { FacilityForm } from "../components/FacilityForm";
 import { FacilityTree } from "../components/FacilityTree";
@@ -81,9 +81,9 @@ export function FacilitiesPage() {
 
   const getFacilityTypeColor = (type) => {
     const colors = {
-      datacenter: "blue",
-      room: "green",
-      sensor: "orange",
+      datacenter: "purple",
+      room: "cyan",
+      sensor: "magenta",
     };
     return colors[type] || "default";
   };
@@ -93,7 +93,7 @@ export function FacilitiesPage() {
       title: "名称",
       dataIndex: "name",
       key: "name",
-      render: (text) => <span style={{ fontWeight: 500, color: "rgba(13, 43, 74, 1)" }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 500, color: "#e4e4e7" }}>{text}</span>,
     },
     {
       title: "类型",
@@ -121,6 +121,7 @@ export function FacilitiesPage() {
           <Button
             type="link"
             onClick={() => handleEdit(record)}
+            style={{ color: "#a78bfa" }}
           >
             编辑
           </Button>
@@ -136,6 +137,7 @@ export function FacilitiesPage() {
               type="link"
               danger
               loading={deletingId === record.id}
+              style={{ color: "#f87171" }}
             >
               删除
             </Button>
@@ -147,33 +149,27 @@ export function FacilitiesPage() {
 
   return (
     <div>
-      <Card style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h1 style={{ fontSize: 16, fontWeight: 600, margin: 0, color: "rgba(13, 43, 74, 1)" }}>设施管理</h1>
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: "#f3f4f6" }}>设施管理</h1>
           <Space>
-            <Button onClick={loadFacilities}>
-              刷新
-            </Button>
-            <Button type="primary" onClick={handleAdd}>
-              新增设施
-            </Button>
+            <Button onClick={loadFacilities}>刷新</Button>
+            <Button type="primary" onClick={handleAdd}>新增设施</Button>
           </Space>
         </div>
-      </Card>
 
-      {error && (
-        <Alert
-          message="错误"
-          description={error}
-          type="error"
-          showIcon
-          closable
-          style={{ marginBottom: 16 }}
-        />
-      )}
+        {error && (
+          <Alert
+            message="错误"
+            description={error}
+            type="error"
+            showIcon
+            closable
+            style={{ marginBottom: 16 }}
+          />
+        )}
 
-      <Card>
-        <Space style={{ marginBottom: 16 }}>
+        <Space style={{ marginRight: 16 }}>
           <Select
             style={{ width: 150 }}
             value={filterType}
@@ -197,24 +193,26 @@ export function FacilitiesPage() {
             ]}
           />
         </Space>
+      </div>
 
-        {loading ? (
-          <div style={{ textAlign: "center", padding: 40 }}>加载中...</div>
-        ) : viewMode === "tree" ? (
-          <FacilityTree
-            facilities={treeData}
-            onEdit={handleEdit}
-            onDelete={(f) => handleDelete(f.id)}
-          />
-        ) : (
-          <Table
-            columns={columns}
-            dataSource={facilities}
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-          />
-        )}
-      </Card>
+      {loading ? (
+        <div style={{ textAlign: "center", padding: 60, color: "#9ca3af" }}>加载中...</div>
+      ) : facilities.length === 0 && treeData.length === 0 ? (
+        <div style={{ textAlign: "center", padding: 60, color: "#9ca3af" }}>暂无数据</div>
+      ) : viewMode === "tree" ? (
+        <FacilityTree
+          facilities={treeData}
+          onEdit={handleEdit}
+          onDelete={(f) => handleDelete(f.id)}
+        />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={facilities}
+          rowKey="id"
+          pagination={{ pageSize: 10 }}
+        />
+      )}
 
       <FacilityForm
         facility={editingFacility}

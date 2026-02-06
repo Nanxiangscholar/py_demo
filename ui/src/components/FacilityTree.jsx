@@ -6,7 +6,7 @@ import { Tree, Tag, Space, Button, Popconfirm } from "antd";
 export function FacilityTree({ facilities, onSelect, onEdit, onDelete }) {
   if (!facilities || !Array.isArray(facilities) || facilities.length === 0) {
     return (
-      <div style={{ textAlign: "center", color: "#999", padding: 40 }}>
+      <div style={{ textAlign: "center", color: "#a1a1aa", padding: 40 }}>
         暂无设施数据
       </div>
     );
@@ -23,9 +23,9 @@ export function FacilityTree({ facilities, onSelect, onEdit, onDelete }) {
 
   const getFacilityTypeColor = (type) => {
     const colors = {
-      datacenter: "blue",
-      room: "green",
-      sensor: "orange",
+      datacenter: "purple",
+      room: "cyan",
+      sensor: "magenta",
     };
     return colors[type] || "default";
   };
@@ -35,12 +35,12 @@ export function FacilityTree({ facilities, onSelect, onEdit, onDelete }) {
       title: (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingRight: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontWeight: 500, fontSize: 14 }}>{facility.name}</span>
+            <span style={{ fontWeight: 500, fontSize: 14, color: "#e4e4e7" }}>{facility.name}</span>
             <Tag color={getFacilityTypeColor(facility.facility_type)} style={{ margin: 0 }}>
               {getFacilityTypeLabel(facility.facility_type)}
             </Tag>
             {facility.description && (
-              <span style={{ color: "#999", fontSize: 12 }}>{facility.description}</span>
+              <span style={{ color: "#71717a", fontSize: 12 }}>{facility.description}</span>
             )}
           </div>
           <Space size="small">
@@ -48,6 +48,7 @@ export function FacilityTree({ facilities, onSelect, onEdit, onDelete }) {
               type="text"
               size="small"
               onClick={(e) => { e.stopPropagation(); onEdit && onEdit(facility); }}
+              style={{ color: "#a78bfa" }}
             >
               编辑
             </Button>
@@ -67,6 +68,7 @@ export function FacilityTree({ facilities, onSelect, onEdit, onDelete }) {
                 size="small"
                 danger
                 onClick={(e) => e.stopPropagation()}
+                style={{ color: "#f87171" }}
               >
                 删除
               </Button>

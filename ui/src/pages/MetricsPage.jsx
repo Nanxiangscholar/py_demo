@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Button, Table, Select, Space, Popconfirm, Tag, Card, Alert } from "antd";
+import { Button, Table, Select, Space, Popconfirm, Tag, Alert } from "antd";
 import { metricService } from "../services/metricService";
 import { facilityService } from "../services/facilityService";
 import { MetricForm } from "../components/MetricForm";
@@ -96,10 +96,10 @@ export function MetricsPage() {
 
   const getDataTypeColor = (type) => {
     const colors = {
-      float: "blue",
-      int: "green",
+      float: "cyan",
+      int: "lime",
       string: "orange",
-      bool: "purple",
+      bool: "magenta",
     };
     return colors[type] || "default";
   };
@@ -109,7 +109,7 @@ export function MetricsPage() {
       title: "名称",
       dataIndex: "name",
       key: "name",
-      render: (text) => <span style={{ fontWeight: 500 }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 500, color: "#e4e4e7" }}>{text}</span>,
     },
     {
       title: "单位",
@@ -143,6 +143,7 @@ export function MetricsPage() {
           <Button
             type="link"
             onClick={() => handleEdit(record)}
+            style={{ color: "#a78bfa" }}
           >
             编辑
           </Button>
@@ -158,6 +159,7 @@ export function MetricsPage() {
               type="link"
               danger
               loading={deletingId === record.id}
+              style={{ color: "#f87171" }}
             >
               删除
             </Button>
@@ -168,17 +170,13 @@ export function MetricsPage() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
-      <Card>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>指标管理</h1>
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: "#f3f4f6" }}>指标管理</h1>
           <Space>
-            <Button onClick={loadMetrics}>
-              刷新
-            </Button>
-            <Button type="primary" onClick={handleAdd}>
-              新增指标
-            </Button>
+            <Button onClick={loadMetrics}>刷新</Button>
+            <Button type="primary" onClick={handleAdd}>新增指标</Button>
           </Space>
         </div>
 
@@ -192,29 +190,32 @@ export function MetricsPage() {
             style={{ marginBottom: 16 }}
           />
         )}
+      </div>
 
-        <Space style={{ marginBottom: 16 }}>
-          <Select
-            style={{ width: 200 }}
-            value={selectedFacilityId}
-            onChange={setSelectedFacilityId}
-            placeholder="请选择"
-            allowClear
-            options={facilities.map((f) => ({
-              label: f.path || f.name,
-              value: f.id,
-            }))}
-          />
-        </Space>
+      <Select
+        style={{ width: 200, marginBottom: 16 }}
+        value={selectedFacilityId}
+        onChange={setSelectedFacilityId}
+        placeholder="请选择"
+        allowClear
+        options={facilities.map((f) => ({
+          label: f.path || f.name,
+          value: f.id,
+        }))}
+      />
 
+      {loading ? (
+        <div style={{ textAlign: "center", padding: 60, color: "#9ca3af" }}>加载中...</div>
+      ) : metrics.length === 0 ? (
+        <div style={{ textAlign: "center", padding: 60, color: "#9ca3af" }}>暂无数据</div>
+      ) : (
         <Table
           columns={columns}
           dataSource={metrics}
           rowKey="id"
-          loading={loading}
           pagination={{ pageSize: 10 }}
         />
-      </Card>
+      )}
 
       <MetricForm
         metric={editingMetric}
