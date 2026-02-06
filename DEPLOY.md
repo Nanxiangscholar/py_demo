@@ -64,16 +64,16 @@ sudo systemctl restart docker
 ### 3. 安装 Docker Compose
 ```bash
 # 下载 Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker compose
 
 # 添加执行权限
-sudo chmod +x /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker compose
 
 # 创建软链接
-sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+sudo ln -s /usr/local/bin/docker compose /usr/bin/docker compose
 
 # 验证安装
-docker-compose --version
+docker compose --version
 ```
 
 ---
@@ -106,13 +106,13 @@ vim .env
 ### 3. 启动服务
 ```bash
 # 构建并启动所有服务
-docker-compose up -d
+docker compose up -d
 
 # 查看服务状态
-docker-compose ps
+docker compose ps
 
 # 查看应用日志
-docker-compose logs -f app
+docker compose logs -f app
 ```
 
 ---
@@ -122,7 +122,7 @@ docker-compose logs -f app
 ### 1. 检查服务状态
 ```bash
 # 查看所有容器
-docker-compose ps
+docker compose ps
 
 # 应该看到三个服务都在运行：
 # - facilities_mysql (mysql)
@@ -142,30 +142,30 @@ docker-compose ps
 
 ```bash
 # 启动服务
-docker-compose start
+docker compose start
 
 # 停止服务
-docker-compose stop
+docker compose stop
 
 # 重启服务
-docker-compose restart
+docker compose restart
 
 # 查看日志
-docker-compose logs -f
+docker compose logs -f
 
 # 查看特定服务日志
-docker-compose logs -f app
-docker-compose logs -f mysql
+docker compose logs -f app
+docker compose logs -f mysql
 
 # 进入容器
-docker-compose exec app bash
-docker-compose exec mysql mysql -uroot -p
+docker compose exec app bash
+docker compose exec mysql mysql -uroot -p
 
 # 更新应用（修改代码后）
-docker-compose up -d --build
+docker compose up -d --build
 
 # 清理所有数据（危险操作！）
-docker-compose down -v
+docker compose down -v
 ```
 
 ---
@@ -209,7 +209,7 @@ cp /etc/letsencrypt/live/your-domain.com/privkey.pem nginx/ssl/key.pem
 ### 备份数据库
 ```bash
 # 备份
-docker-compose exec mysql mysqldump -uroot -pzsl123456 facilities_db > backup_$(date +%Y%m%d).sql
+docker compose exec mysql mysqldump -uroot -pzsl123456 facilities_db > backup_$(date +%Y%m%d).sql
 
 # 从容器复制到主机
 docker cp facilities_mysql:/backup.sql ./backup.sql
@@ -221,7 +221,7 @@ docker cp facilities_mysql:/backup.sql ./backup.sql
 docker cp ./backup.sql facilities_mysql:/backup.sql
 
 # 恢复
-docker-compose exec mysql mysql -uroot -pzsl123456 facilities_db < /backup.sql
+docker compose exec mysql mysql -uroot -pzsl123456 facilities_db < /backup.sql
 ```
 
 ---
@@ -231,8 +231,8 @@ docker-compose exec mysql mysql -uroot -pzsl123456 facilities_db < /backup.sql
 ### 1. 容器无法启动
 ```bash
 # 查看详细日志
-docker-compose logs app
-docker-compose logs mysql
+docker compose logs app
+docker compose logs mysql
 
 # 检查端口占用
 netstat -tlnp | grep :80
@@ -243,10 +243,10 @@ netstat -tlnp | grep :8008
 ### 2. 数据库连接失败
 ```bash
 # 检查 MySQL 是否就绪
-docker-compose exec mysql mysqladmin ping -h localhost -uroot -pzsl123456
+docker compose exec mysql mysqladmin ping -h localhost -uroot -pzsl123456
 
 # 查看数据库日志
-docker-compose logs mysql
+docker compose logs mysql
 ```
 
 ### 3. 防火墙问题
@@ -277,7 +277,7 @@ sudo systemctl stop firewalld
 ```
 py_demo/
 ├── Dockerfile              # Docker 镜像构建文件
-├── docker-compose.yml      # Docker Compose 编排文件
+├── docker compose.yml      # Docker Compose 编排文件
 ├── .dockerignore          # Docker 忽略文件
 ├── nginx.conf             # Nginx 配置文件
 ├── .env.example           # 环境变量模板
@@ -298,6 +298,6 @@ py_demo/
 ## 联系支持
 
 如有问题，请检查：
-1. Docker 日志: `docker-compose logs`
+1. Docker 日志: `docker compose logs`
 2. Nginx 日志: `/var/log/nginx/`
 3. 应用健康状态: `http://your_server_ip/health`

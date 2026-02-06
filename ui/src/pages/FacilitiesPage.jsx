@@ -68,7 +68,6 @@ export function FacilitiesPage() {
     setShowForm(false);
     setEditingFacility(undefined);
     loadFacilities();
-    message.success("操作成功");
   };
 
   const getFacilityTypeLabel = (type) => {

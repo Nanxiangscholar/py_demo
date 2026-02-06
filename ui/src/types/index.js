@@ -1,7 +1,3 @@
-/**
- * 类型定义 - 已改为 JS
- * 与后端 API models 对应
- */
 
 // 设施类型
 export const FacilityType = {

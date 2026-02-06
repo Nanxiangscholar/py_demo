@@ -1,6 +1,3 @@
-/**
- * 指标管理 API 服务 - 已改为 JS
- */
 import { api } from "../lib/api";
 
 export const metricService = {
