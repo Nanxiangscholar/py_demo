@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 257" fill="none">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景 - 六边形 -->
+  <path d="M128 8L240 64V192L128 248L16 192V64L128 8Z" fill="url(#bgGradient)"/>
+
+  <!-- 建筑物轮廓 -->
+  <path d="M76 70L128 50L180 70V180H76V70Z" stroke="white" stroke-width="8" stroke-linejoin="round" fill="none"/>
+
+  <!-- 服务器机架 -->
+  <rect x="95" y="85" width="66" height="14" rx="4" fill="white" fill-opacity="0.95"/>
+  <rect x="95" y="110" width="66" height="14" rx="4" fill="white" fill-opacity="0.95"/>
+  <rect x="95" y="135" width="66" height="14" rx="4" fill="white" fill-opacity="0.95"/>
+
+  <!-- 数据点 - 左侧 -->
+  <circle cx="60" cy="100" r="6" fill="white" fill-opacity="0.9"/>
+  <circle cx="60" cy="130" r="6" fill="white" fill-opacity="0.9"/>
+  <circle cx="60" cy="160" r="6" fill="white" fill-opacity="0.9"/>
+
+  <!-- 数据点 - 右侧 -->
+  <circle cx="196" cy="100" r="6" fill="white" fill-opacity="0.9"/>
+  <circle cx="196" cy="130" r="6" fill="white" fill-opacity="0.9"/>
+  <circle cx="196" cy="160" r="6" fill="white" fill-opacity="0.9"/>
+
+  <!-- 连接线 -->
+  <path d="M66 100L95 92" stroke="white" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <path d="M66 130L95 117" stroke="white" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <path d="M66 160L95 142" stroke="white" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+
+  <path d="M190 100L161 92" stroke="white" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <path d="M190 130L161 117" stroke="white" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <path d="M190 160L161 142" stroke="white" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+</svg>
