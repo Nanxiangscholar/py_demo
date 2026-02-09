@@ -271,4 +271,4 @@ def on_leave():
 if __name__ == '__main__':
     print('五子棋服务器启动...')
     print('WebSocket 服务器运行在端口 8001')
-    socketio.run(app, host='0.0.0.0', port=8001, debug=False)
+    socketio.run(app, host='0.0.0.0', port=8001, debug=False, allow_unsafe_werkzeug=True)
