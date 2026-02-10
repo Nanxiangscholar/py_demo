@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 
 function App() {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://121.41.85.83:8001';
+  const API_URL = import.meta.env.VITE_API_URL || window.location.origin;
   const socketRef = useRef(null);
 
   // 游戏状态

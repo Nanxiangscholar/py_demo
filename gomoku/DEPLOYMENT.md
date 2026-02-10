@@ -5,25 +5,29 @@
 ```
 gomoku/
 ├── backend/          # Python Flask + SocketIO 后端
-│   └── app.py        # 后端服务代码
-└── ui/               # React 前端
-    ├── src/
-    │   └── App.jsx   # 前端主组件
-    ├── dist/         # 构建产物
-    └── .env.example  # 环境变量模板
+│   ├── app.py        # 后端服务代码
+│   ├── Dockerfile    # 后端 Docker 镜像
+│   └── requirements.txt
+├── ui/               # React 前端
+│   ├── src/
+│   │   └── App.jsx   # 前端主组件
+│   ├── dist/         # 构建产物
+│   └── .env.example  # 环境变量模板
+├── nginx.conf        # Nginx 配置（支持 WebSocket）
+└── docker-compose.yml # Docker Compose 配置
 ```
 
 ---
 
 ## 一、环境要求
 
-### 后端
-- Python 3.6+
-- 依赖包：`flask`, `flask-socketio`, `flask-cors`, `eventlet`
+### Docker 部署（推荐）
+- Docker 20.10+
+- Docker Compose 2.0+
 
-### 前端
-- Node.js 16+
-- npm 或 yarn
+### 本地开发
+- 后端：Python 3.6+
+- 前端：Node.js 16+
 
 ---
 
@@ -33,7 +37,7 @@ gomoku/
 
 ```bash
 cd backend
-pip3 install flask flask-socketio flask-cors eventlet
+pip3 install -r requirements.txt
 ```
 
 ### 2. 启动后端
@@ -50,17 +54,7 @@ cd ui
 npm install
 ```
 
-### 4. 配置环境变量（可选）
-
-```bash
-# 复制模板
-cp .env.example .env
-
-# .env 文件内容（开发环境）
-VITE_API_URL=http://localhost:8001
-```
-
-### 5. 启动前端开发服务器
+### 4. 启动前端开发服务器
 
 ```bash
 npm run dev
@@ -69,207 +63,140 @@ npm run dev
 
 ---
 
-## 三、服务器部署（阿里云 ECS）
+## 三、生产环境部署（Docker + Nginx）
 
-### 1. 上传代码到服务器
-
-```bash
-# 方式一：使用 scp
-scp -r gomoku root@你的服务器IP:/opt/web/
-
-# 方式二：使用 git
-git clone 你的仓库地址 /opt/web/gomoku
-```
-
-### 2. 安装后端依赖
+### 1. 构建前端
 
 ```bash
-ssh root@你的服务器IP
-cd /opt/web/gomoku/backend
-pip3 install flask flask-socketio flask-cors eventlet
-```
-
-### 3. 构建前端（在本地执行）
-
-```bash
-# 本地构建，指定服务器地址
 cd ui
-VITE_API_URL=http://你的服务器IP:8001 npm run build
-
-# 上传 dist 到服务器
-scp -r dist/* root@你的服务器IP:/opt/web/gomoku/frontend/dist/
+# 构建时指定 API 地址（通过 nginx 代理，使用相对路径即可）
+npm run build
 ```
 
-### 4. 启动后端服务
+### 2. 启动服务
 
 ```bash
-cd /opt/web/gomoku/backend
-python3 app.py &
+cd gomoku
+docker-compose up -d
 ```
 
-验证后端启动：
+### 3. 查看服务状态
+
 ```bash
-netstat -tlnp | grep 8001
-# 应该看到 8001 端口在监听
+docker-compose ps
+docker-compose logs -f
 ```
 
-### 5. 启动前端服务
+### 4. 访问应用
+
+- 前端：`http://你的服务器IP:8000`
+- 后端健康检查：`http://你的服务器IP:8000/health`
+
+### 5. 配置防火墙
 
 ```bash
-cd /opt/web/gomoku/frontend
-serve -s dist -l 8081 &
-```
-
-### 6. 配置阿里云安全组
-
-登录阿里云控制台 → ECS 实例 → 安全组 → 添加规则：
-
-| 端口范围 | 授权对象 | 协议 |
-|----------|----------|------|
-| 8001/8001 | 0.0.0.0/0 | TCP |
-| 8081/8081 | 0.0.0.0/0 | TCP |
-
-### 7. 配置系统防火墙（如果启用）
-
-```bash
-systemctl status firewalld
-
-# 如果 firewalld 正在运行
-firewall-cmd --zone=public --add-port=8001/tcp --permanent
-firewall-cmd --zone=public --add-port=8081/tcp --permanent
+# 开放 8000 端口
+firewall-cmd --zone=public --add-port=8000/tcp --permanent
 firewall-cmd --reload
 ```
 
+### 6. 常用命令
+
+```bash
+# 停止服务
+docker-compose down
+
+# 重启服务
+docker-compose restart
+
+# 查看日志
+docker-compose logs -f backend
+docker-compose logs -f nginx
+
+# 重新构建并启动
+docker-compose up -d --build
+```
+
 ---
 
-## 四、访问地址
+## 四、端口说明
 
-- 前端：`http://你的服务器IP:8081`
-- 后端：`http://你的服务器IP:8001`
+| 端口 | 用途 |
+|------|------|
+| 8000 | Nginx 入口（前端 + WebSocket） |
+| 8001 | 后端服务（容器内部，不对外暴露） |
 
 ---
 
-## 五、常用命令
+## 五、WebSocket 配置说明
 
-### 查看后端日志
-```bash
-# 如果使用 nohup 启动
-tail -f nohup.out
+Nginx 已配置支持 Socket.IO 的 WebSocket 连接：
 
-# 如果直接运行，查看前台输出
-```
-
-### 停止服务
-```bash
-# 停止后端
-pkill -f "python3 app.py"
-
-# 停止前端
-pkill serve
-```
-
-### 查看端口占用
-```bash
-netstat -tlnp | grep 8001
-lsof -i:8001
-```
-
-### 重启服务
-```bash
-# 后端
-pkill -f "python3 app.py"
-cd /opt/web/gomoku/backend
-python3 app.py &
-
-# 前端
-pkill serve
-cd /opt/web/gomoku/frontend
-serve -s dist -l 8081 &
-```
+- WebSocket 路径：`/socket.io/`
+- 自动升级 HTTP 连接到 WebSocket
+- 超时设置：1小时（适合长时间对局）
 
 ---
 
 ## 六、常见问题
 
-### 1. 前端无法连接后端
+### 1. WebSocket 连接失败
 
 **检查清单：**
-- [ ] 后端是否启动：`netstat -tlnp | grep 8001`
-- [ ] 阿里云安全组是否开放 8001 端口
-- [ ] 系统防火墙是否开放端口
-- [ ] 前端 API_URL 配置是否正确
+- [ ] Docker 容器是否正常运行：`docker-compose ps`
+- [ ] 防火墙是否开放 8000 端口
+- [ ] Nginx 配置是否正确加载
 
-### 2. serve 显示文件列表而非页面
+### 2. 前端页面 404
 
-**原因：** 缺少 `-s` 参数
+**原因：** 前端未构建或构建产物路径错误
 
 **解决：**
 ```bash
-serve -s dist -l 8081
+cd ui
+npm run build
+# 确保 dist 目录在 ui/ 下
+ls -la ui/dist/
 ```
 
-### 3. 后端启动报错 `allow_unsafe_werkzeug`
+### 3. 服务频繁重启
 
-**原因：** Werkzeug 版本过旧
-
-**解决：** 修改 `app.py` 最后一行
-```python
-# 原代码
-socketio.run(app, host='0.0.0.0', port=8001, debug=False, allow_unsafe_werkzeug=True)
-
-# 修改为
-socketio.run(app, host='0.0.0.0', port=8001, debug=False)
-```
-
-### 4. 端口被占用
-
-**查找并停止占用进程：**
+**查看日志：**
 ```bash
-lsof -i:8001
-kill <PID>
+docker-compose logs backend
 ```
 
 ---
 
 ## 七、生产环境建议
 
-### 使用进程管理器（PM2 或 Supervisor）
+### 使用 HTTPS
 
-**PM2 管理后端：**
-```bash
-npm install -g pm2
-pm2 start backend/app.py --name gomoku-backend --interpreter python3
-pm2 save
-pm2 startup
-```
-
-### 使用 Nginx 反向代理
+修改 `nginx.conf`，添加 HTTPS 配置：
 
 ```nginx
 server {
-    listen 80;
+    listen 443 ssl http2;
     server_name your-domain.com;
 
-    # 前端
-    location / {
-        root /opt/web/gomoku/frontend/dist;
-        try_files $uri $uri/ /index.html;
-    }
+    ssl_certificate /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
 
-    # 后端 WebSocket
-    location /socket.io/ {
-        proxy_pass http://localhost:8001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-    }
+    # ... 其他配置同上
+}
+
+# HTTP 重定向到 HTTPS
+server {
+    listen 80;
+    return 301 https://$server_name$request_uri;
 }
 ```
 
-### 使用 HTTPS
+### 使用域名
 
-推荐使用 Let's Encrypt 免费证书：
+建议配置域名和 SSL 证书，使用 Let's Encrypt：
+
 ```bash
 # 安装 certbot
 yum install certbot python3-certbot-nginx
@@ -278,12 +205,33 @@ yum install certbot python3-certbot-nginx
 certbot --nginx -d your-domain.com
 ```
 
+### 使用进程管理
+
+Docker 会自动管理进程重启，无需额外配置。
+
 ---
 
-## 八、端口说明
+## 八、迁移说明
 
-| 端口 | 用途 |
-|------|------|
-| 8001 | 后端 WebSocket 服务 |
-| 8081 | 前端静态页面服务 |
-| 5173 | 前端开发服务器（仅本地开发） |
+### 从旧部署迁移
+
+1. 停止旧服务：
+```bash
+pkill -f "python3 app.py"
+pkill serve
+```
+
+2. 备份数据（如有）：
+```bash
+# 当前版本无持久化数据，跳过
+```
+
+3. 启动新服务：
+```bash
+cd gomoku
+docker-compose up -d
+```
+
+4. 更新前端 API 地址：
+- 构建时使用相对路径，无需修改
+- 如使用绝对路径，改为 `http://你的服务器IP:8000`
